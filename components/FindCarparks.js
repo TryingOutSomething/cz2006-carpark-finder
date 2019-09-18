@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { Text, View } from "react-native";
+import {
+  Button,
+  FlatList,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from "react-native";
 import {
   Stitch,
   RemoteMongoClient,
@@ -14,79 +21,89 @@ import {
 } from "react-native-dotenv";
 
 export default class FindCarparks extends Component {
+  static navigationOptions = {
+    headerTitle: "Search Carparks"
+  };
+
   constructor() {
     super();
     this.state = {
-      address: undefined,
-      parkingType: undefined,
-      carParkNo: undefined,
+      carParkInfo: undefined,
       isFetching: true
     };
 
     this._loadClient = this._loadClient.bind(this);
   }
 
-  componentWillMount() {
-    this._loadClient();
-  }
+  async _loadClient(text) {
+    let client = undefined;
 
-  _loadClient() {
-    // TODO: Move credentials to dotenv
-    Stitch.initializeDefaultAppClient(APP_ID)
-      .then(client => {
-        const dbClient = client.getServiceClient(
-          RemoteMongoClient.factory,
-          STITCH_SERVICE_NAME
-        );
-        client.auth
-          .loginWithCredential(new AnonymousCredential())
-          .then(user => {
-            const carParkCollection = dbClient
-              .db(DB_NAME)
-              .collection(COLLECTION_NAME);
+    try {
+      if (!Stitch.hasAppClient(APP_ID)) {
+        client = await Stitch.initializeDefaultAppClient(APP_ID);
+      } else {
+        client = await Stitch.getAppClient(APP_ID);
+      }
 
-            carParkCollection
-              .find({ car_park_no: "AK19" })
-              .toArray()
-              .then(result => {
-                this.setState({
-                  address: result[0].address,
-                  parkingType: result[0].parking_system_type,
-                  carParkNo: result[0].car_park_no,
-                  isFetching: false
-                });
-              });
-          })
-          .catch(err => console.log(err));
-      })
-      .catch(err => console.log(err));
+      const db = await client
+        .getServiceClient(RemoteMongoClient.factory, STITCH_SERVICE_NAME)
+        .db(DB_NAME);
+
+      const carParkCollection = db.collection(COLLECTION_NAME);
+
+      client.auth.loginWithCredential(new AnonymousCredential());
+
+      carParkCollection
+        .find({ address: new RegExp(text.toUpperCase()) })
+        .toArray()
+        .then(result => {
+          this.setState({
+            carParkInfo: result
+          });
+        });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   render() {
-    /**
-     * Check if data is being fetched from the server.
-     * If the app is still fetching the data,
-     * the app will display loading screen to the user.
-     */
-
-    if (!this.state.isFetching) {
-      return (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text>Car Park Number: {this.state.carParkNo}</Text>
-          <Text>Address: {this.state.address}</Text>
-          <Text>Parking Type: {this.state.parkingType}</Text>
-        </View>
-      );
-    } else {
-      return (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text>Fetching data...</Text>
-        </View>
-      );
-    }
+    return (
+      <View style={styles.container}>
+        <TextInput
+          style={styles.textarea}
+          onChangeText={text => this.setState({ textInput: text })}
+          value={this.state.textInput}
+          placeholder="Enter Carpark"
+        />
+        <Button
+          onPress={() => this._loadClient(this.state.textInput)}
+          title="log output"
+        />
+        {this.state.carParkInfo
+          ? this.state.carParkInfo.map(value => {
+              return (
+                <Text key={value._id}>
+                  {value.address} {"\n"}
+                  {value.car_park_no} {"\n"}
+                  {value.latitude} {"\n"}
+                  {value.longitude} {"\n"}
+                  {value.parking_system_type} {"\n"}
+                </Text>
+              );
+            })
+          : null}
+      </View>
+    );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+  textarea: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1
+  }
+});

@@ -5,6 +5,7 @@ export default class DisplayMap extends Component {
   static navigationOptions = {
     header: null
   };
+
   render() {
     return (
       <View style={styles.Container}>
@@ -19,9 +20,9 @@ export default class DisplayMap extends Component {
 }
 
 const styles = StyleSheet.create({
-    Container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center"
-    }
+  Container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  }
 });
