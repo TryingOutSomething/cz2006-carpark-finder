@@ -51,7 +51,9 @@ export default class FindCarparks extends Component {
 
       const carParkCollection = db.collection(COLLECTION_NAME);
 
-      client.auth.loginWithCredential(new AnonymousCredential());
+      Stitch.defaultAppClient.auth.loginWithCredential(
+        new AnonymousCredential()
+      );
 
       carParkCollection
         .find({ address: new RegExp(text.toUpperCase()) })
