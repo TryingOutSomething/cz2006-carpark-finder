@@ -8,6 +8,9 @@ Tools used:
 4. MongoDB Stitch
 5. MongoDB Atlas
 6. DotEnv
+7. react-native-maps
+8. react-native-axios
+9. react-native-paper
 
 ## Installation:
 
@@ -19,6 +22,12 @@ Tools used:
 
 ```
 npm install
+```
+
+#### Install Expo
+
+```
+npm install -g expo-cli
 ```
 
 #### Create a Environment Variable file using .env_sample
