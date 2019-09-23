@@ -14,6 +14,10 @@ export default class DisplayMap extends Component {
           title="Query Carpark"
           onPress={() => this.props.navigation.navigate("search")}
         />
+        <Button
+          title="Settings"
+          onPress={() => this.props.navigation.navigate("settings")}
+        />
       </View>
     );
   }
