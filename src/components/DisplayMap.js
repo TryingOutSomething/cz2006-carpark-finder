@@ -7,6 +7,9 @@ export default class DisplayMap extends Component {
   };
 
   render() {
+    const { navigation } = this.props;
+    const value = navigation.getParam("selectedCarpark", "");
+
     return (
       <View style={styles.Container}>
         <Text>Search for a carpark info</Text>
@@ -18,6 +21,7 @@ export default class DisplayMap extends Component {
           title="Settings"
           onPress={() => this.props.navigation.navigate("settings")}
         />
+        {value ? console.log(value) : null}
       </View>
     );
   }

@@ -4,12 +4,11 @@ import {
   StyleSheet,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
 
-import { Button } from "react-native-paper";
+import { IconButton, TextInput } from "react-native-paper";
 
 import SearchCarpark from "../controllers/CarParkDataHandler";
 
@@ -27,7 +26,7 @@ export default class FindCarparks extends Component {
 
     this.getSearchCarpark = SearchCarpark.bind(this);
     this.renderCarParkList = this.renderCarParkList.bind(this);
-    this.log = this.log.bind(this);
+    this.routeToMap = this.routeToMap.bind(this);
   }
 
   renderCarParkList(carpark_address) {
@@ -39,68 +38,95 @@ export default class FindCarparks extends Component {
     });
   }
 
-  log(item) {
-    console.log(item);
+  routeToMap(carpark) {
+    this.props.navigation.navigate("home", {
+      selectedCarpark: carpark
+    });
   }
 
   render() {
     return (
-      <View style={styles.container}>
-        <TextInput
-          style={styles.TextArea}
-          onChangeText={text => this.setState({ textInput: text })}
-          value={this.state.textInput}
-          placeholder="Enter Carpark"
-        />
-        <Button
-          onPress={() => this.renderCarParkList(this.state.textInput)}
-          mode="contained"
-          children="Search"
-        />
-
-        {this.state.isFetching ? (
-          this.state.carParkInfo ? (
-            <ScrollView>
-              <FlatList
-                data={this.state.carParkInfo}
-                renderItem={({ item }) => (
-                  <View>
-                    <TouchableOpacity
-                      style={styles.ListItem}
-                      onPress={() => {
-                        this.log(item);
-                      }}
-                    >
-                      <Text>{item.address}</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-                keyExtractor={item => item._id.toString()}
-                ListEmptyComponent={<Text>No Results!</Text>}
-              />
-            </ScrollView>
-          ) : (
-            <Text>Fetching Data</Text>
-          )
-        ) : null}
+      <View>
+        <View style={styles.searchContainer}>
+          <View style={styles.searchWithText}>
+            <TextInput
+              style={styles.TextArea}
+              onChangeText={text => this.setState({ textInput: text })}
+              value={this.state.textInput}
+              mode="flat"
+              placeholder="Search Carpark"
+              underlineColor="purple"
+            />
+            <IconButton
+              style={styles.Button}
+              onPress={() => this.renderCarParkList(this.state.textInput)}
+              icon="search"
+            />
+          </View>
+          <View style={styles.List}>
+            {this.state.isFetching ? (
+              this.state.carParkInfo ? (
+                <ScrollView>
+                  <FlatList
+                    data={this.state.carParkInfo}
+                    renderItem={({ item }) => (
+                      <View>
+                        <TouchableOpacity
+                          style={styles.ListItem}
+                          onPress={() => {
+                            this.routeToMap(item);
+                          }}
+                        >
+                          <Text>{item.address}</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    keyExtractor={item => item._id.toString()}
+                    ListEmptyComponent={<Text>No Results!</Text>}
+                  />
+                </ScrollView>
+              ) : (
+                <Text style={styles.FetchingData}>Fetching Data</Text>
+              )
+            ) : null}
+          </View>
+        </View>
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
+  searchContainer: {
+    flexDirection: "column"
+  },
+
+  searchWithText: {
+    flex: 1,
+    flexDirection: "row"
+  },
+
+  FetchingData: {
+    marginTop: "10%",
+    marginLeft: "3%"
+  },
+
+  List: {
+    marginTop: "12%",
+    height: "100%"
+  },
+
+  Button: {
+    marginTop: "3%"
   },
   TextArea: {
     height: 40,
-    borderColor: "gray",
-    borderWidth: 1
+    width: "87%",
+    marginLeft: "3%",
+    marginTop: "3%"
   },
   ListItem: {
-    backgroundColor: "#f9c2ff",
     padding: 20,
-    marginVertical: 8,
     marginHorizontal: 16
   }
 });
