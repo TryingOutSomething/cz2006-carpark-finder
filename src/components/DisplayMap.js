@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-import { Button, Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { Button, IconButton } from "react-native-paper";
 
 import { getCurrentPosition } from "../controllers/CarParkDataHandler";
 
@@ -44,7 +45,7 @@ export default class DisplayMap extends Component {
     const value = navigation.getParam("selectedCarpark", "");
 
     return (
-      <View style={styles.Container}>
+      <View style={styles.container}>
         <MapView
           style={styles.map}
           initialRegion={{
@@ -64,16 +65,54 @@ export default class DisplayMap extends Component {
             pinColor={"red"}
           />
         </MapView>
+
+        <View style={styles.routingContainer}>
+          <IconButton
+            onPress={() => this.props.navigation.navigate("search")}
+            icon="search"
+          />
+          <IconButton
+            onPress={() => this.props.navigation.navigate("settings")}
+            icon="settings"
+          />
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            style={styles.nearestCpButton}
+            mode="contained"
+            children="Nearest Carpark"
+          ></Button>
+        </View>
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  Container: {
+  container: {
     flex: 1
+  },
+
+  routingContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: "5%"
   },
   map: {
     ...StyleSheet.absoluteFillObject
+  },
+
+  buttonContainer: {
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "flex-end"
+  },
+
+  nearestCpButton: {
+    width: "80%",
+    marginBottom: "10%"
   }
 });
