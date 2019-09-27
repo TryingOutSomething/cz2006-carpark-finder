@@ -24,7 +24,16 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cz2006.carparkfinder"
+    },
+    "android": {
+      "package": "com.cz2006.carparkfinder",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBpOpdlkA3VCl71ldzHuUznuQAM7x94uUg"
+        }
+      }
     }
   }
 }

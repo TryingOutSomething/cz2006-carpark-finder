@@ -10,7 +10,7 @@ import {
 
 import { IconButton, TextInput } from "react-native-paper";
 
-import SearchCarpark from "../controllers/CarParkDataHandler";
+import { getSearchCarpark } from "../controllers/CarParkDataHandler";
 
 export default class FindCarparks extends Component {
   static navigationOptions = {
@@ -24,7 +24,7 @@ export default class FindCarparks extends Component {
       isFetching: false
     };
 
-    this.getSearchCarpark = SearchCarpark.bind(this);
+    this.getSearchCarpark = getSearchCarpark.bind(this);
     this.renderCarParkList = this.renderCarParkList.bind(this);
     this.routeToMap = this.routeToMap.bind(this);
   }

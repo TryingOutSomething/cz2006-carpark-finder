@@ -11,7 +11,10 @@ import {
   COLLECTION_NAME
 } from "react-native-dotenv";
 
-export default getSearchCarpark = async function(carpark_address) {
+import * as Permissions from "expo-permissions";
+import * as Location from "expo-location";
+
+export async function getSearchCarpark(carpark_address) {
   let client = undefined;
 
   try {
@@ -37,4 +40,17 @@ export default getSearchCarpark = async function(carpark_address) {
   } catch (err) {
     console.log(err);
   }
-};
+}
+
+export async function getCurrentPosition() {
+  const { status } = await Permissions.getAsync(Permissions.LOCATION);
+
+  if (status !== "granted") {
+    console.log("Permission is not granted!")
+    // return;
+  }
+
+  let location = await Location.getCurrentPositionAsync({});
+
+  return location;
+}
