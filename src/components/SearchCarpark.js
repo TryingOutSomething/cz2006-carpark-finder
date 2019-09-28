@@ -82,7 +82,9 @@ export default class FindCarparks extends Component {
                       </View>
                     )}
                     keyExtractor={item => item._id.toString()}
-                    ListEmptyComponent={<Text>No Results!</Text>}
+                    ListEmptyComponent={
+                      <Text style={styles.FetchingData}>No Results!</Text>
+                    }
                   />
                 </ScrollView>
               ) : (
