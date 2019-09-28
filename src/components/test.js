@@ -89,7 +89,7 @@ export default class test extends Component {
 
         {this.state.nearest15Lots ? (
           <BottomDrawer
-            containerHeight={100}
+            containerHeight={250}
             offset={TAB_BAR_HEIGHT + HEADER_HEIGHT}
             startUp={false}
             backgroundColor={"#fffff0"}
@@ -107,6 +107,7 @@ export default class test extends Component {
                 Lots Available: {
                   this.state.nearest15Lots[0].lots_available
                 } / {this.state.nearest15Lots[0].total_lots} {"\n"}
+                {this.state.nearest15Lots[0].car_park_type} {"\n"}
                 {this.state.nearest15Lots[0].parking_system_type}
               </Text>
               <View style={styles.buttonContainer}>
