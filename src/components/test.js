@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { StyleSheet, View, Text } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, IconButton } from "react-native-paper";
 import BottomDrawer from "rn-bottom-drawer";
 
 import {
-  getNearbyCarparks,
+  getNearbyCarparks as getCarparkInfo,
   getCurrentPosition,
   getCarparksAvailability,
   mergeCarparkData
@@ -18,14 +18,19 @@ export default class test extends Component {
     super();
     this.state = {
       nearest15Lots: undefined,
-      isAnotherButtonLoading: false
+      bookmarkList: [],
+      bookmarkColour: "#ECEFF1",
+      isBookmarked: false,
+      isAnotherButtonLoading: false,
+      isDrawerShowing: false
     };
 
     this.currPos = getCurrentPosition.bind(this);
     this.carparkAvail = getCarparksAvailability.bind(this);
     this.currLoc = this.currLoc.bind(this);
-    this.getLoc = getNearbyCarparks.bind(this);
+    this.getLoc = getCarparkInfo.bind(this);
     this.updatedCarparkData = mergeCarparkData.bind(this);
+    this.bookmarkCarPark = this.bookmarkCarPark.bind(this);
   }
 
   currLoc() {
@@ -58,24 +63,24 @@ export default class test extends Component {
         else first15Lots = location;
 
         this.carparkAvail()
-          .then(response => {
-            /** Filtering the available carpark lots fetched from the
-             *  carpark_availability API against the first 15 car park lots
-             *  that are the nearerst from our location.
-             */
-            let filteredLots = response.filter(lotInfo =>
-              first15Lots.find(
-                carparkInfo =>
-                  lotInfo.carpark_number === carparkInfo.car_park_no
-              )
-            );
-
-            let result = this.updatedCarparkData(filteredLots, first15Lots);
-            this.setState({ nearest15Lots: result });
+          .then(lots => {
+            let result = this.updatedCarparkData(lots, first15Lots);
+            this.setState({ nearest15Lots: result, isDrawerShowing: true });
           })
           .catch(err => console.log(err));
       })
       .catch(err => console.log(err));
+  }
+
+  bookmarkCarPark() {
+    if (this.state.bookmarkList.includes(this.state.nearest15Lots[0])) {
+      this.state.bookmarkList.pop();
+      this.setState({ isBookmarked: false, bookmarkColour: "#ECEFF1" });
+    } else {
+      this.state.bookmarkList.push(this.state.nearest15Lots[0]);
+      this.setState({ isBookmarked: true, bookmarkColour: "#FFFF00" });
+    }
+    console.log(this.state.bookmarkList);
   }
 
   render() {
@@ -87,11 +92,11 @@ export default class test extends Component {
           children="current location"
         />
 
-        {this.state.nearest15Lots ? (
+        {this.state.isDrawerShowing ? (
           <BottomDrawer
             containerHeight={250}
             offset={TAB_BAR_HEIGHT + HEADER_HEIGHT}
-            startUp={false}
+            startUp={true}
             backgroundColor={"#fffff0"}
             roundedEdges={true}
             onExpanded={() => {
@@ -101,6 +106,18 @@ export default class test extends Component {
               console.log("collapsed");
             }}
           >
+            <View style={styles.drawerToolbarOptions}>
+              <IconButton
+                icon="bookmark"
+                color={this.state.bookmarkColour}
+                onPress={() => this.bookmarkCarPark()}
+              />
+              <IconButton
+                icon="close"
+                onPress={() => this.setState({ isDrawerShowing: false })}
+              />
+            </View>
+
             <View style={styles.contentContainer}>
               <Text style={styles.text}>
                 {this.state.nearest15Lots[0].address} {"\n\n"}
@@ -155,6 +172,11 @@ const styles = StyleSheet.create({
   },
   text: {
     paddingHorizontal: 5
+  },
+
+  drawerToolbarOptions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 
   drawerAnotherButton: {

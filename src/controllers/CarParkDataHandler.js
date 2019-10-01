@@ -57,14 +57,14 @@ export async function getCurrentPosition() {
 }
 
 export async function getCarparksAvailability() {
-  let response = await axios.get(
-    "https://api.data.gov.sg/v1/transport/carpark-availability"
-  );
+  let response = await axios
+    .get("https://api.data.gov.sg/v1/transport/carpark-availability")
+    .catch(err => console.log(err));
 
   return response.data.items[0].carpark_data;
 }
 
-export async function getNearbyCarparks(long, lat) {
+export async function getCarparkInfo(long, lat) {
   let client = undefined;
 
   try {
@@ -99,7 +99,17 @@ export async function getNearbyCarparks(long, lat) {
   }
 }
 
-export function mergeCarparkData(filteredLots, first15Lots) {
+export function mergeCarparkData(lots, first15Lots) {
+  /** Filtering the available carpark lots fetched from the
+   *  carpark_availability API against the first 15 car park lots
+   *  that are the nearerst from our location.
+   */
+  let filteredLots = lots.filter(lotInfo =>
+    first15Lots.find(
+      carparkInfo => lotInfo.carpark_number === carparkInfo.car_park_no
+    )
+  );
+
   for (let i = 0; i < filteredLots.length; i++) {
     for (let j = 0; j < first15Lots.length; j++) {
       if (filteredLots[i].carpark_number !== first15Lots[j].car_park_no)

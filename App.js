@@ -9,12 +9,12 @@ import test from "./src/components/test"
 
 const AppStackNavigator = createStackNavigator(
   {
-    //home: { screen: DisplayMap },
-    //search: { screen: SearchCarparks },
-    //settings: { screen: Settings },
+    home: { screen: DisplayMap },
+    search: { screen: SearchCarparks },
+    settings: { screen: Settings },
     test: { screen: test }
   },
-  { initialRoute: "test" }
+  { initialRoute: "home" }
 );
 
 const AppContainer = createAppContainer(AppStackNavigator);

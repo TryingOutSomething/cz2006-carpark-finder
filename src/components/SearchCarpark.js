@@ -61,6 +61,7 @@ export default class FindCarparks extends Component {
               style={styles.Button}
               onPress={() => this.renderCarParkList(this.state.textInput)}
               icon="search"
+              animated={true}
             />
           </View>
           <View style={styles.List}>
