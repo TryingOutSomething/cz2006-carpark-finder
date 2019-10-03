@@ -30,8 +30,8 @@ export default class DisplayMap extends Component {
       nearest15Lots: undefined,
       bookmarkList: [],
       bookmarkColour: "#CFD8DC",
-      isBookmarked: false,
       isDrawerShowing: false,
+      showPolyLine: false,
       isSearchingCarpark: false,
       showNearestCarparkBtn: true,
       timestamp: undefined
@@ -42,6 +42,8 @@ export default class DisplayMap extends Component {
     this.getCarparkInfomation = getCarparkInfo.bind(this);
     this.updatedCarparkData = mergeCarparkData.bind(this);
     this.bookmarkCarPark = this.bookmarkCarPark.bind(this);
+    this.isBookmarked = this.isBookmarked.bind(this);
+    this.test = this.test.bind(this);
     this.chooseNextCarpark = this.chooseNextCarpark.bind(this);
   }
 
@@ -84,14 +86,18 @@ export default class DisplayMap extends Component {
         this.carparkAvail()
           .then(lots => {
             let result = this.updatedCarparkData(lots, first15Lots);
-            //let currentTime = new Date();
+
             this.setState({
               nearest15Lots: result,
               isDrawerShowing: true,
               isSearchingCarpark: false,
               showNearestCarparkBtn: false,
+              showPolyLine: true,
               timestamp: new Date().toLocaleTimeString()
             });
+
+            if (this.isBookmarked(this.state.bookmarkList))
+              this.setState({ bookmarkColour: "#F57F17" });
           })
           .catch(err => console.log(err));
       })
@@ -101,31 +107,48 @@ export default class DisplayMap extends Component {
   bookmarkCarPark() {
     let bookmarks = [...this.state.bookmarkList];
 
-    if (bookmarks.includes(this.state.nearest15Lots[0])) {
+    if (this.isBookmarked(bookmarks)) {
       bookmarks.pop();
       this.setState({
-        isBookmarked: false,
-        bookmarkColour: "#CFD8DC",
-        bookmarkList: bookmarks
+        bookmarkList: bookmarks,
+        bookmarkColour: "#CFD8DC"
       });
     } else {
       bookmarks.push(this.state.nearest15Lots[0]);
       this.setState({
-        isBookmarked: true,
-        bookmarkColour: "#F57F17",
-        bookmarkList: bookmarks
+        bookmarkList: bookmarks,
+        bookmarkColour: "#F57F17"
       });
     }
-    console.log(this.state.bookmarkList);
+  }
+
+  isBookmarked(bookmark) {
+    let result = bookmark.some(
+      bookmark =>
+        this.state.nearest15Lots[0].car_park_no === bookmark.car_park_no
+    );
+    console.log(result);
+    return result;
+  }
+
+  test() {
+    if (this.isBookmarked(this.state.bookmarkList))
+      this.setState({ bookmarkColour: "#F57F17" });
+    else this.setState({ bookmarkColour: "#CFD8DC" });
   }
 
   chooseNextCarpark() {
     let carparkLots = [...this.state.nearest15Lots];
     carparkLots.push(this.state.nearest15Lots[0]);
     carparkLots.shift();
-    this.setState({
-      nearest15Lots: carparkLots
-    });
+    this.setState(
+      {
+        nearest15Lots: carparkLots
+      },
+      this.test()
+    );
+    console.log(this.state.bookmarkList);
+    // Check if the current carpark is bookmarked or not
   }
 
   render() {
@@ -153,7 +176,7 @@ export default class DisplayMap extends Component {
             pinColor={"green"}
           />
 
-          {this.state.nearest15Lots ? (
+          {this.state.showPolyLine ? (
             <View>
               <Marker
                 coordinate={{
@@ -220,7 +243,8 @@ export default class DisplayMap extends Component {
                 onPress={() =>
                   this.setState({
                     isDrawerShowing: false,
-                    showNearestCarparkBtn: true
+                    showNearestCarparkBtn: true,
+                    showPolyLine: false
                   })
                 }
               />
