@@ -1,15 +1,19 @@
 import React, { Component } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
 import { Button, IconButton } from "react-native-paper";
 import BottomDrawer from "rn-bottom-drawer";
+import * as Permissions from "expo-permissions";
+import * as Location from "expo-location";
 
 import {
   getCarparkInfo,
-  getCurrentPosition,
   getCarparksAvailability,
   mergeCarparkData
 } from "../controllers/CarParkDataHandler";
+
+import { GOOGLE_MAPS_APIKEY } from "react-native-dotenv";
 
 export default class DisplayMap extends Component {
   static navigationOptions = {
@@ -33,7 +37,6 @@ export default class DisplayMap extends Component {
       timestamp: undefined
     };
 
-    this.getCurrPos = getCurrentPosition.bind(this);
     this.carparkAvail = getCarparksAvailability.bind(this);
     this.getNearbyCarparkLocations = this.getNearbyCarparkLocations.bind(this);
     this.getCarparkInfomation = getCarparkInfo.bind(this);
@@ -43,20 +46,26 @@ export default class DisplayMap extends Component {
   }
 
   componentWillMount() {
-    this.getCurrPos()
-      .then(location => {
-        console.log(location);
-        this.setState({
-          userLat: location.coords.latitude,
-          userLong: location.coords.longitude
-        });
-      })
-      .catch(err => console.log(err));
+    this.getCurrPos();
 
     const width = Dimensions.get("screen").width;
     const height = Dimensions.get("screen").height;
     const screenLongDelta = this.state.latDelta * (width / height);
     this.setState({ longDelta: screenLongDelta });
+  }
+
+  async getCurrPos() {
+    let { status } = await Permissions.getAsync(Permissions.LOCATION);
+    if (status !== "granted") {
+      console.log("Permission is not granted!");
+    } else {
+      let location = await Location.getCurrentPositionAsync({});
+      console.log(location);
+      this.setState({
+        userLat: location.coords.latitude,
+        userLong: location.coords.longitude
+      });
+    }
   }
 
   getNearbyCarparkLocations() {
@@ -75,13 +84,13 @@ export default class DisplayMap extends Component {
         this.carparkAvail()
           .then(lots => {
             let result = this.updatedCarparkData(lots, first15Lots);
-            let currentTime = new Date();
+            //let currentTime = new Date();
             this.setState({
               nearest15Lots: result,
               isDrawerShowing: true,
               isSearchingCarpark: false,
               showNearestCarparkBtn: false,
-              timestamp: currentTime.toLocaleTimeString()
+              timestamp: new Date().toLocaleTimeString()
             });
           })
           .catch(err => console.log(err));
@@ -141,8 +150,35 @@ export default class DisplayMap extends Component {
             }}
             title={"You"}
             description={`${this.state.userLat}, ${this.state.userLong}`}
-            pinColor={"red"}
+            pinColor={"green"}
           />
+
+          {this.state.nearest15Lots ? (
+            <View>
+              <Marker
+                coordinate={{
+                  latitude: this.state.nearest15Lots[0].loc.coordinates[1],
+                  longitude: this.state.nearest15Lots[0].loc.coordinates[0]
+                }}
+                title={"Destination"}
+                description={`${this.state.nearest15Lots[0].address}`}
+                pinColor={"red"}
+              />
+              <MapViewDirections
+                origin={{
+                  latitude: this.state.userLat,
+                  longitude: this.state.userLong
+                }}
+                destination={{
+                  latitude: this.state.nearest15Lots[0].loc.coordinates[1],
+                  longitude: this.state.nearest15Lots[0].loc.coordinates[0]
+                }}
+                apikey={GOOGLE_MAPS_APIKEY}
+                strokeWidth={5}
+                strokeColor="red"
+              />
+            </View>
+          ) : null}
         </MapView>
 
         <View style={styles.routingContainer}>
