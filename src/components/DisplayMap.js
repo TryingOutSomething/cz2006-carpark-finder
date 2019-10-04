@@ -43,7 +43,7 @@ export default class DisplayMap extends Component {
     this.updatedCarparkData = mergeCarparkData.bind(this);
     this.bookmarkCarPark = this.bookmarkCarPark.bind(this);
     this.isBookmarked = this.isBookmarked.bind(this);
-    this.test = this.test.bind(this);
+    this.setBookmarkColour = this.setBookmarkColour.bind(this);
     this.chooseNextCarpark = this.chooseNextCarpark.bind(this);
   }
 
@@ -87,17 +87,17 @@ export default class DisplayMap extends Component {
           .then(lots => {
             let result = this.updatedCarparkData(lots, first15Lots);
 
-            this.setState({
-              nearest15Lots: result,
-              isDrawerShowing: true,
-              isSearchingCarpark: false,
-              showNearestCarparkBtn: false,
-              showPolyLine: true,
-              timestamp: new Date().toLocaleTimeString()
-            });
-
-            if (this.isBookmarked(this.state.bookmarkList))
-              this.setState({ bookmarkColour: "#F57F17" });
+            this.setState(
+              {
+                nearest15Lots: result,
+                isDrawerShowing: true,
+                isSearchingCarpark: false,
+                showNearestCarparkBtn: false,
+                showPolyLine: true,
+                timestamp: new Date().toLocaleTimeString()
+              },
+              () => this.setBookmarkColour()
+            );
           })
           .catch(err => console.log(err));
       })
@@ -123,15 +123,13 @@ export default class DisplayMap extends Component {
   }
 
   isBookmarked(bookmark) {
-    let result = bookmark.some(
+    return bookmark.some(
       bookmark =>
         this.state.nearest15Lots[0].car_park_no === bookmark.car_park_no
     );
-    console.log(result);
-    return result;
   }
 
-  test() {
+  setBookmarkColour() {
     if (this.isBookmarked(this.state.bookmarkList))
       this.setState({ bookmarkColour: "#F57F17" });
     else this.setState({ bookmarkColour: "#CFD8DC" });
@@ -145,7 +143,7 @@ export default class DisplayMap extends Component {
       {
         nearest15Lots: carparkLots
       },
-      this.test()
+      () => this.setBookmarkColour()
     );
     console.log(this.state.bookmarkList);
     // Check if the current carpark is bookmarked or not
