@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
-import MapView, { Marker, Polyline } from "react-native-maps";
+import { Dimensions, StyleSheet, Text, View, Image } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { Button, IconButton } from "react-native-paper";
 import BottomDrawer from "rn-bottom-drawer";
 import * as Permissions from "expo-permissions";
 import * as Location from "expo-location";
+import UserMarker from "../../assets/motorist-icon-32.png";
 
 import {
   getCarparkInfo,
@@ -31,6 +32,8 @@ export default class DisplayMap extends Component {
       bookmarkList: [],
       bookmarkColour: "#CFD8DC",
       isDrawerShowing: false,
+      isDrawerExpanded: true,
+      showDrawerButtons: true,
       showPolyLine: false,
       isSearchingCarpark: false,
       showNearestCarparkBtn: true,
@@ -94,6 +97,7 @@ export default class DisplayMap extends Component {
                 isSearchingCarpark: false,
                 showNearestCarparkBtn: false,
                 showPolyLine: true,
+                showDrawerButtons: true,
                 timestamp: new Date().toLocaleTimeString()
               },
               () => this.setBookmarkColour()
@@ -172,7 +176,9 @@ export default class DisplayMap extends Component {
             title={"You"}
             description={`${this.state.userLat}, ${this.state.userLong}`}
             pinColor={"green"}
-          />
+          >
+            <Image source={UserMarker} />
+          </Marker>
 
           {this.state.showPolyLine ? (
             <View>
@@ -223,12 +229,6 @@ export default class DisplayMap extends Component {
             startUp={true}
             backgroundColor={"#ffffff"}
             roundedEdges={true}
-            onExpanded={() => {
-              console.log("exapnd");
-            }}
-            onCollapsed={() => {
-              console.log("collapsed");
-            }}
           >
             <View style={styles.drawerToolbarOptions}>
               <IconButton
@@ -258,22 +258,25 @@ export default class DisplayMap extends Component {
                 {this.state.nearest15Lots[0].parking_system_type} {"\n"}
                 {`Fetched at ${this.state.timestamp}`}
               </Text>
-              <View style={styles.drawerButtonContainer}>
-                <Button
-                  style={styles.drawerAnotherButton}
-                  mode="outlined"
-                  color="#FF3D00"
-                  children="ANOTHER"
-                  onPress={() => this.chooseNextCarpark()}
-                />
-                <Button
-                  style={styles.drawerOkButton}
-                  mode="outlined"
-                  color="#0023FF"
-                  children="OK"
-                  onPress={() => console.log("second buttom pressed")}
-                />
-              </View>
+
+              {this.state.showDrawerButtons ? (
+                <View style={styles.drawerButtonContainer}>
+                  <Button
+                    style={styles.drawerAnotherButton}
+                    mode="outlined"
+                    color="#FF3D00"
+                    children="ANOTHER"
+                    onPress={() => this.chooseNextCarpark()}
+                  />
+                  <Button
+                    style={styles.drawerOkButton}
+                    mode="outlined"
+                    color="#0023FF"
+                    children="OK"
+                    onPress={() => this.setState({ showDrawerButtons: false })}
+                  />
+                </View>
+              ) : null}
             </View>
           </BottomDrawer>
         ) : null}
