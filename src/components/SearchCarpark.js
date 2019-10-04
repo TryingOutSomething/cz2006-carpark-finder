@@ -64,7 +64,14 @@ export default class FindCarparks extends Component {
         }
 
         this.props.navigation.navigate("home", {
-          selectedCarpark: carparkLots
+          fromSearch: true,
+          destLat: carparkLots[0].loc.coordinates[1],
+          destLong: carparkLots[0].loc.coordinates[0],
+          destAddress: carparkLots[0].address,
+          lotsAvailable: carparkLots[0].lots_available,
+          totalLots: carparkLots[0].total_lots,
+          carparkType: carparkLots[0].car_park_type,
+          parkingSystemType: carparkLots[0].parking_system_type
         });
       })
       .catch(err => console.log(err));

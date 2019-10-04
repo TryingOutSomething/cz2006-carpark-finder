@@ -8,13 +8,14 @@ import * as Permissions from "expo-permissions";
 import * as Location from "expo-location";
 import UserMarker from "../../assets/motorist-icon-32.png";
 
+import DestinationRouter from "./DestinationRouter";
+import DrawerFromBottom from "./BottomDrawer";
+
 import {
   getCarparkInfo,
   getCarparksAvailability,
   mergeCarparkData
 } from "../controllers/CarParkDataHandler";
-
-import { GOOGLE_MAPS_APIKEY } from "react-native-dotenv";
 
 export default class DisplayMap extends Component {
   static navigationOptions = {
@@ -48,7 +49,6 @@ export default class DisplayMap extends Component {
     this.isBookmarked = this.isBookmarked.bind(this);
     this.setBookmarkColour = this.setBookmarkColour.bind(this);
     this.chooseNextCarpark = this.chooseNextCarpark.bind(this);
-    this.setResultFromSearch = this.setResultFromSearch.bind(this);
   }
 
   componentWillMount() {
@@ -127,6 +127,25 @@ export default class DisplayMap extends Component {
     }
   }
 
+  bookmarkCarParkFromSearch() {
+    // todo, bookmark need can just search via address
+    let bookmarks = [...this.state.bookmarkList];
+
+    if (this.isBookmarked(bookmarks)) {
+      bookmarks.pop();
+      this.setState({
+        bookmarkList: bookmarks,
+        bookmarkColour: "#CFD8DC"
+      });
+    } else {
+      bookmarks.push(this.state.nearest15Lots[0]);
+      this.setState({
+        bookmarkList: bookmarks,
+        bookmarkColour: "#F57F17"
+      });
+    }
+  }
+
   isBookmarked(bookmark) {
     return bookmark.some(
       bookmark =>
@@ -155,29 +174,19 @@ export default class DisplayMap extends Component {
     console.log(this.state.bookmarkList);
   }
 
-  setResultFromSearch(value) {
-    console.log("in the search bae <3");
-
-    let carparks = [];
-
-    if (this.state.nearest15Lots) {
-      console.log("already ate something huh");
-      carparks = [...this.state.nearest15Lots];
-    }
-
-    carparks.unshift(value);
-    this.setState({
-      nearest15Lots: carparks,
-      showPolyLine: true,
-      isDrawerShowing: true,
-      showDrawerButtons: false,
-      showNearestCarparkBtn: false
-    });
-  }
-
   render() {
-    let fromSearch = this.props.navigation.getParam("selectedCarpark", null);
-    if (fromSearch) this.setResultFromSearch(fromSearch);
+    // todo add parameters for bookmark
+    let fromSearch = this.props.navigation.getParam("fromSearch", null);
+    let destLat = this.props.navigation.getParam("destLat", null);
+    let destLong = this.props.navigation.getParam("destLong", null);
+    let destAddress = this.props.navigation.getParam("destAddress", null);
+    let lotsAvailable = this.props.navigation.getParam("lotsAvailable", null);
+    let totalLots = this.props.navigation.getParam("totalLots", null);
+    let carparkType = this.props.navigation.getParam("carparkType", null);
+    let parkingSystemType = this.props.navigation.getParam(
+      "parkingSystemType",
+      null
+    );
 
     return (
       <View style={styles.container}>
@@ -202,31 +211,30 @@ export default class DisplayMap extends Component {
             <Image source={UserMarker} />
           </Marker>
 
-          {this.state.showPolyLine ? (
-            <View>
-              <Marker
-                coordinate={{
-                  latitude: this.state.nearest15Lots[0].loc.coordinates[1],
-                  longitude: this.state.nearest15Lots[0].loc.coordinates[0]
-                }}
-                title={"Destination"}
-                description={`${this.state.nearest15Lots[0].address}`}
-                pinColor={"red"}
-              />
-              <MapViewDirections
-                origin={{
-                  latitude: this.state.userLat,
-                  longitude: this.state.userLong
-                }}
-                destination={{
-                  latitude: this.state.nearest15Lots[0].loc.coordinates[1],
-                  longitude: this.state.nearest15Lots[0].loc.coordinates[0]
-                }}
-                apikey={GOOGLE_MAPS_APIKEY}
-                strokeWidth={5}
-                strokeColor="red"
-              />
-            </View>
+          {fromSearch ? (
+            <DestinationRouter
+              userCoord={{
+                latitude: this.state.userLat,
+                longitude: this.state.userLong
+              }}
+              destCoord={{
+                latitude: destLat,
+                longitude: destLong
+              }}
+              address={destAddress}
+            />
+          ) : this.state.showPolyLine ? (
+            <DestinationRouter
+              userCoord={{
+                latitude: this.state.userLat,
+                longitude: this.state.userLong
+              }}
+              destCoord={{
+                latitude: this.state.nearest15Lots[0].loc.coordinates[1],
+                longitude: this.state.nearest15Lots[0].loc.coordinates[0]
+              }}
+              address={this.state.nearest15Lots[0].address}
+            />
           ) : null}
         </MapView>
 
@@ -282,45 +290,66 @@ export default class DisplayMap extends Component {
               </Text>
 
               {this.state.showDrawerButtons ? (
-                // hide ANOTHER button if result from Searching Carpark screen
-                fromSearch ? (
-                  <View style={styles.drawerButtonContainer}>
-                    <Button
-                      style={styles.drawerAnotherButton}
-                      mode="outlined"
-                      color="#FF3D00"
-                      children="ANOTHER"
-                      onPress={() => this.chooseNextCarpark()}
-                    />
-                    <Button
-                      style={styles.drawerOkButton}
-                      mode="outlined"
-                      color="#0023FF"
-                      children="OK"
-                      onPress={() =>
-                        this.setState({ showDrawerButtons: false })
-                      }
-                    />
-                  </View>
-                ) : (
-                  <View style={styles.drawerButtonContainer}>
-                    <Button
-                      style={styles.drawerOkButton}
-                      mode="outlined"
-                      color="#0023FF"
-                      children="OK"
-                      onPress={() =>
-                        this.setState({ showDrawerButtons: false })
-                      }
-                    />
-                  </View>
-                )
+                <View style={styles.drawerButtonContainer}>
+                  <Button
+                    style={styles.drawerAnotherButton}
+                    mode="outlined"
+                    color="#FF3D00"
+                    children="ANOTHER"
+                    onPress={() => this.chooseNextCarpark()}
+                  />
+                  <Button
+                    style={styles.drawerOkButton}
+                    mode="outlined"
+                    color="#0023FF"
+                    children="OK"
+                    onPress={() => this.setState({ showDrawerButtons: false })}
+                  />
+                </View>
               ) : null}
+            </View>
+          </BottomDrawer>
+        ) : fromSearch ? (
+          <BottomDrawer
+            containerHeight={250}
+            startUp={true}
+            backgroundColor={"#ffffff"}
+            roundedEdges={true}
+          >
+            <View style={styles.drawerToolbarOptions}>
+              <IconButton
+                icon="bookmark"
+                color={this.state.bookmarkColour}
+                onPress={() => this.bookmarkCarParkFromSearch()}
+              />
+              <IconButton
+                icon="close"
+                onPress={() =>
+                  this.setState({
+                    isDrawerShowing: false,
+                    showNearestCarparkBtn: true,
+                    showPolyLine: false
+                  })
+                }
+              />
+            </View>
+
+            <View style={styles.contentContainer}>
+              <Text style={styles.text}>
+                {destAddress}
+                {"\n\n"}
+                Lots Available: {lotsAvailable} / {totalLots}
+                {"\n"}
+                {carparkType} {"\n"}
+                {parkingSystemType}
+                {"\n"}
+                {`Fetched at ${this.state.timestamp}`}
+              </Text>
             </View>
           </BottomDrawer>
         ) : null}
 
-        {this.state.showNearestCarparkBtn ? (
+        {this.state.showNearestCarparkBtn && !fromSearch ? (
           <View style={styles.buttonContainer}>
             <Button
               style={styles.nearestCpButton}

@@ -5,33 +5,11 @@ import { IconButton } from "react-native-paper";
 export default class test extends Component {
   constructor() {
     super();
-
-    this.test = this.test.bind(this);
-  }
-
-  test() {
-    console.log("Hello");
-    return (
-      <Text>
-        {JSON.stringify(this.props.navigation.getParam("selectedCarpark", ""))}
-      </Text>
-    );
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        <Button
-          title="go to search"
-          onPress={() => this.props.navigation.navigate("search")}
-        />
-        {this.props.navigation.getParam("selectedCarpark", null) ? (
-          <View>{this.test()}</View>
-        ) : (
-          <Text>nothing</Text>
-        )}
-      </View>
-    );
+    let fromSearch = this.props.navigation.getParam("selectedCarpark", null);
+    return <View>{fromSearch ? <Text>hello</Text> : <Text>bye</Text>}</View>;
   }
 }
 
