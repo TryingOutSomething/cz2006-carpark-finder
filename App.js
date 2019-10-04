@@ -5,7 +5,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import DisplayMap from "./src/components/DisplayMap";
 import SearchCarparks from "./src/components/SearchCarpark";
 import Settings from "./src/components/Settings";
-import test from "./src/components/test"
+import test from "./src/components/test";
 
 const AppStackNavigator = createStackNavigator(
   {

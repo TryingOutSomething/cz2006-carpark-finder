@@ -10,7 +10,10 @@ import {
 
 import { IconButton, TextInput } from "react-native-paper";
 
-import { getSearchCarpark } from "../controllers/CarParkDataHandler";
+import {
+  getSearchCarpark,
+  getCarparksAvailability
+} from "../controllers/CarParkDataHandler";
 
 export default class FindCarparks extends Component {
   static navigationOptions = {
@@ -25,6 +28,7 @@ export default class FindCarparks extends Component {
     };
 
     this.getSearchCarpark = getSearchCarpark.bind(this);
+    this.carparkAvail = getCarparksAvailability.bind(this);
     this.renderCarParkList = this.renderCarParkList.bind(this);
     this.routeToMap = this.routeToMap.bind(this);
   }
@@ -39,9 +43,31 @@ export default class FindCarparks extends Component {
   }
 
   routeToMap(carpark) {
-    this.props.navigation.navigate("home", {
-      selectedCarpark: carpark
-    });
+    let carparkLots = [];
+    carparkLots.push(carpark);
+
+    this.carparkAvail()
+      .then(cpLots => {
+        let lotInfo = cpLots.find(
+          lot => carparkLots[0].car_park_no === lot.carpark_number
+        );
+
+        if (lotInfo.carpark_info.length > 1) {
+          let cTypeLot = lotInfo.carpark_info.find(lotType => lotType === "C");
+
+          carparkLots[0]["lots_available"] = cTypeLot.lots_available;
+          carparkLots[0]["total_lots"] = cTypeLot.total_lots;
+        } else {
+          carparkLots[0]["lots_available"] =
+            lotInfo.carpark_info[0].lots_available;
+          carparkLots[0]["total_lots"] = lotInfo.carpark_info[0].total_lots;
+        }
+
+        this.props.navigation.navigate("home", {
+          selectedCarpark: carparkLots
+        });
+      })
+      .catch(err => console.log(err));
   }
 
   render() {

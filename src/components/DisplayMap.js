@@ -48,6 +48,7 @@ export default class DisplayMap extends Component {
     this.isBookmarked = this.isBookmarked.bind(this);
     this.setBookmarkColour = this.setBookmarkColour.bind(this);
     this.chooseNextCarpark = this.chooseNextCarpark.bind(this);
+    this.setResultFromSearch = this.setResultFromSearch.bind(this);
   }
 
   componentWillMount() {
@@ -134,6 +135,7 @@ export default class DisplayMap extends Component {
   }
 
   setBookmarkColour() {
+    // Check if the current carpark is bookmarked or not
     if (this.isBookmarked(this.state.bookmarkList))
       this.setState({ bookmarkColour: "#F57F17" });
     else this.setState({ bookmarkColour: "#CFD8DC" });
@@ -147,15 +149,35 @@ export default class DisplayMap extends Component {
       {
         nearest15Lots: carparkLots
       },
+      // Check if the current carpark is bookmarked or not
       () => this.setBookmarkColour()
     );
     console.log(this.state.bookmarkList);
-    // Check if the current carpark is bookmarked or not
+  }
+
+  setResultFromSearch(value) {
+    console.log("in the search bae <3");
+
+    let carparks = [];
+
+    if (this.state.nearest15Lots) {
+      console.log("already ate something huh");
+      carparks = [...this.state.nearest15Lots];
+    }
+
+    carparks.unshift(value);
+    this.setState({
+      nearest15Lots: carparks,
+      showPolyLine: true,
+      isDrawerShowing: true,
+      showDrawerButtons: false,
+      showNearestCarparkBtn: false
+    });
   }
 
   render() {
-    const { navigation } = this.props;
-    const value = navigation.getParam("selectedCarpark", "");
+    let fromSearch = this.props.navigation.getParam("selectedCarpark", null);
+    if (fromSearch) this.setResultFromSearch(fromSearch);
 
     return (
       <View style={styles.container}>
@@ -260,22 +282,39 @@ export default class DisplayMap extends Component {
               </Text>
 
               {this.state.showDrawerButtons ? (
-                <View style={styles.drawerButtonContainer}>
-                  <Button
-                    style={styles.drawerAnotherButton}
-                    mode="outlined"
-                    color="#FF3D00"
-                    children="ANOTHER"
-                    onPress={() => this.chooseNextCarpark()}
-                  />
-                  <Button
-                    style={styles.drawerOkButton}
-                    mode="outlined"
-                    color="#0023FF"
-                    children="OK"
-                    onPress={() => this.setState({ showDrawerButtons: false })}
-                  />
-                </View>
+                // hide ANOTHER button if result from Searching Carpark screen
+                fromSearch ? (
+                  <View style={styles.drawerButtonContainer}>
+                    <Button
+                      style={styles.drawerAnotherButton}
+                      mode="outlined"
+                      color="#FF3D00"
+                      children="ANOTHER"
+                      onPress={() => this.chooseNextCarpark()}
+                    />
+                    <Button
+                      style={styles.drawerOkButton}
+                      mode="outlined"
+                      color="#0023FF"
+                      children="OK"
+                      onPress={() =>
+                        this.setState({ showDrawerButtons: false })
+                      }
+                    />
+                  </View>
+                ) : (
+                  <View style={styles.drawerButtonContainer}>
+                    <Button
+                      style={styles.drawerOkButton}
+                      mode="outlined"
+                      color="#0023FF"
+                      children="OK"
+                      onPress={() =>
+                        this.setState({ showDrawerButtons: false })
+                      }
+                    />
+                  </View>
+                )
               ) : null}
             </View>
           </BottomDrawer>
