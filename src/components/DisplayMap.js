@@ -176,6 +176,7 @@ export default class DisplayMap extends Component {
 
   render() {
     // todo add parameters for bookmark
+    // search cp just pass in one param, then settle here
     let fromSearch = this.props.navigation.getParam("fromSearch", null);
     let destLat = this.props.navigation.getParam("destLat", null);
     let destLong = this.props.navigation.getParam("destLong", null);
