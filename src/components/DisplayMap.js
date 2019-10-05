@@ -9,7 +9,6 @@ import * as Location from "expo-location";
 import UserMarker from "../../assets/motorist-icon-32.png";
 
 import DestinationRouter from "./DestinationRouter";
-import DrawerFromBottom from "./BottomDrawer";
 
 import {
   getCarparkInfo,
@@ -127,8 +126,7 @@ export default class DisplayMap extends Component {
     }
   }
 
-  bookmarkCarParkFromSearch() {
-    // todo, bookmark need can just search via address
+  bookmarkCarParkFromSearch(carpark) {
     let bookmarks = [...this.state.bookmarkList];
 
     if (this.isBookmarked(bookmarks)) {
@@ -138,12 +136,13 @@ export default class DisplayMap extends Component {
         bookmarkColour: "#CFD8DC"
       });
     } else {
-      bookmarks.push(this.state.nearest15Lots[0]);
+      bookmarks.push(carpark);
       this.setState({
         bookmarkList: bookmarks,
         bookmarkColour: "#F57F17"
       });
     }
+    console.log("hi");
   }
 
   isBookmarked(bookmark) {
@@ -176,18 +175,7 @@ export default class DisplayMap extends Component {
 
   render() {
     // todo add parameters for bookmark
-    // search cp just pass in one param, then settle here
-    let fromSearch = this.props.navigation.getParam("fromSearch", null);
-    let destLat = this.props.navigation.getParam("destLat", null);
-    let destLong = this.props.navigation.getParam("destLong", null);
-    let destAddress = this.props.navigation.getParam("destAddress", null);
-    let lotsAvailable = this.props.navigation.getParam("lotsAvailable", null);
-    let totalLots = this.props.navigation.getParam("totalLots", null);
-    let carparkType = this.props.navigation.getParam("carparkType", null);
-    let parkingSystemType = this.props.navigation.getParam(
-      "parkingSystemType",
-      null
-    );
+    let fromSearch = this.props.navigation.getParam("searchCarpark", null);
 
     return (
       <View style={styles.container}>
@@ -219,10 +207,10 @@ export default class DisplayMap extends Component {
                 longitude: this.state.userLong
               }}
               destCoord={{
-                latitude: destLat,
-                longitude: destLong
+                latitude: fromSearch.loc.coordinates[1],
+                longitude: fromSearch.loc.coordinates[0]
               }}
-              address={destAddress}
+              address={fromSearch.address}
             />
           ) : this.state.showPolyLine ? (
             <DestinationRouter
@@ -253,7 +241,8 @@ export default class DisplayMap extends Component {
             icon="settings"
           />
         </View>
-
+        
+        {/** wrap fromSearch with another variable? */}
         {this.state.isDrawerShowing ? (
           <BottomDrawer
             containerHeight={250}
@@ -321,28 +310,20 @@ export default class DisplayMap extends Component {
               <IconButton
                 icon="bookmark"
                 color={this.state.bookmarkColour}
-                onPress={() => this.bookmarkCarParkFromSearch()}
+                onPress={() => this.bookmarkCarParkFromSearch(fromSearch)}
               />
-              <IconButton
-                icon="close"
-                onPress={() =>
-                  this.setState({
-                    isDrawerShowing: false,
-                    showNearestCarparkBtn: true,
-                    showPolyLine: false
-                  })
-                }
-              />
+              <IconButton icon="close" onPress={() => {}} />
             </View>
 
             <View style={styles.contentContainer}>
               <Text style={styles.text}>
-                {destAddress}
+                {fromSearch.address}
                 {"\n\n"}
-                Lots Available: {lotsAvailable} / {totalLots}
+                Lots Available: {fromSearch.lots_available} /{" "}
+                {fromSearch.total_lots}
                 {"\n"}
-                {carparkType} {"\n"}
-                {parkingSystemType}
+                {fromSearch.car_park_type} {"\n"}
+                {fromSearch.parking_system_type}
                 {"\n"}
                 {`Fetched at ${this.state.timestamp}`}
               </Text>
