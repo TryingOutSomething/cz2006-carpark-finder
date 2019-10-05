@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Image, Text } from "react-native";
+import { View } from "react-native";
 import { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 

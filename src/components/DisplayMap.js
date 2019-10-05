@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Dimensions, StyleSheet, Text, View, Image } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import MapViewDirections from "react-native-maps-directions";
 import { Button, IconButton } from "react-native-paper";
 import BottomDrawer from "rn-bottom-drawer";
 import * as Permissions from "expo-permissions";
@@ -31,23 +30,22 @@ export default class DisplayMap extends Component {
       nearest15Lots: undefined,
       bookmarkList: [],
       bookmarkColour: "#CFD8DC",
-      isDrawerShowing: false,
-      isDrawerExpanded: true,
+      showNearestCarparkResults: false,
+      showResultsFromSearch: true,
       showDrawerButtons: true,
-      showPolyLine: false,
       isSearchingCarpark: false,
       showNearestCarparkBtn: true,
-      timestamp: undefined
+      timestamp: new Date().toLocaleTimeString()
     };
 
     this.carparkAvail = getCarparksAvailability.bind(this);
-    this.getNearbyCarparkLocations = this.getNearbyCarparkLocations.bind(this);
     this.getCarparkInfomation = getCarparkInfo.bind(this);
     this.updatedCarparkData = mergeCarparkData.bind(this);
     this.bookmarkCarPark = this.bookmarkCarPark.bind(this);
     this.isBookmarked = this.isBookmarked.bind(this);
     this.setBookmarkColour = this.setBookmarkColour.bind(this);
     this.chooseNextCarpark = this.chooseNextCarpark.bind(this);
+    this.getNearbyCarparkLocations = this.getNearbyCarparkLocations.bind(this);
   }
 
   componentWillMount() {
@@ -93,12 +91,10 @@ export default class DisplayMap extends Component {
             this.setState(
               {
                 nearest15Lots: result,
-                isDrawerShowing: true,
                 isSearchingCarpark: false,
                 showNearestCarparkBtn: false,
-                showPolyLine: true,
-                showDrawerButtons: true,
-                timestamp: new Date().toLocaleTimeString()
+                showNearestCarparkResults: true
+                // showDrawerButtons: true
               },
               () => this.setBookmarkColour()
             );
@@ -108,7 +104,7 @@ export default class DisplayMap extends Component {
       .catch(err => console.log(err));
   }
 
-  bookmarkCarPark() {
+  /*bookmarkCarPark() {
     let bookmarks = [...this.state.bookmarkList];
 
     if (this.isBookmarked(bookmarks)) {
@@ -142,7 +138,6 @@ export default class DisplayMap extends Component {
         bookmarkColour: "#F57F17"
       });
     }
-    console.log("hi");
   }
 
   isBookmarked(bookmark) {
@@ -150,11 +145,48 @@ export default class DisplayMap extends Component {
       bookmark =>
         this.state.nearest15Lots[0].car_park_no === bookmark.car_park_no
     );
+  }*/
+
+  bookmarkCarPark(carparkList) {
+    let bookmarks = [...this.state.bookmarkList];
+
+    if (this.isBookmarked(bookmarks, carparkList)) {
+      bookmarks.pop();
+      this.setState(
+        {
+          bookmarkList: bookmarks,
+          bookmarkColour: "#CFD8DC"
+        },
+        () => console.log(this.state.bookmarkList)
+      );
+    } else {
+      bookmarks.push(carparkList);
+      this.setState(
+        {
+          bookmarkList: bookmarks,
+          bookmarkColour: "#F57F17"
+        },
+        () => console.log(this.state.bookmarkList)
+      );
+    }
+  }
+
+  isBookmarked(bookmark, carparkList) {
+    let result = bookmark.some(
+      bookmark => carparkList.car_park_no === bookmark.car_park_no
+    );
+    /*console.log(result);
+
+    let result1 = bookmark.find(
+      bookmark => carparkList === bookmark.car_park_no
+    );*/
+
+    return result;
   }
 
   setBookmarkColour() {
     // Check if the current carpark is bookmarked or not
-    if (this.isBookmarked(this.state.bookmarkList))
+    if (this.isBookmarked(this.state.bookmarkList, this.state.nearest15Lots[0]))
       this.setState({ bookmarkColour: "#F57F17" });
     else this.setState({ bookmarkColour: "#CFD8DC" });
   }
@@ -200,7 +232,7 @@ export default class DisplayMap extends Component {
             <Image source={UserMarker} />
           </Marker>
 
-          {fromSearch ? (
+          {fromSearch && this.state.showResultsFromSearch ? (
             <DestinationRouter
               userCoord={{
                 latitude: this.state.userLat,
@@ -212,7 +244,7 @@ export default class DisplayMap extends Component {
               }}
               address={fromSearch.address}
             />
-          ) : this.state.showPolyLine ? (
+          ) : this.state.showNearestCarparkResults ? (
             <DestinationRouter
               userCoord={{
                 latitude: this.state.userLat,
@@ -241,9 +273,9 @@ export default class DisplayMap extends Component {
             icon="settings"
           />
         </View>
-        
+
         {/** wrap fromSearch with another variable? */}
-        {this.state.isDrawerShowing ? (
+        {this.state.showNearestCarparkResults ? (
           <BottomDrawer
             containerHeight={250}
             startUp={true}
@@ -254,15 +286,16 @@ export default class DisplayMap extends Component {
               <IconButton
                 icon="bookmark"
                 color={this.state.bookmarkColour}
-                onPress={() => this.bookmarkCarPark()}
+                onPress={() =>
+                  this.bookmarkCarPark(this.state.nearest15Lots[0])
+                }
               />
               <IconButton
                 icon="close"
                 onPress={() =>
                   this.setState({
-                    isDrawerShowing: false,
-                    showNearestCarparkBtn: true,
-                    showPolyLine: false
+                    showNearestCarparkResults: false,
+                    showNearestCarparkBtn: true
                   })
                 }
               />
@@ -299,7 +332,7 @@ export default class DisplayMap extends Component {
               ) : null}
             </View>
           </BottomDrawer>
-        ) : fromSearch ? (
+        ) : fromSearch && this.state.showResultsFromSearch ? (
           <BottomDrawer
             containerHeight={250}
             startUp={true}
@@ -310,9 +343,17 @@ export default class DisplayMap extends Component {
               <IconButton
                 icon="bookmark"
                 color={this.state.bookmarkColour}
-                onPress={() => this.bookmarkCarParkFromSearch(fromSearch)}
+                onPress={() => this.bookmarkCarPark(fromSearch)}
               />
-              <IconButton icon="close" onPress={() => {}} />
+              <IconButton
+                icon="close"
+                onPress={() =>
+                  this.setState({
+                    showResultsFromSearch: false,
+                    showNearestCarparkBtn: true
+                  })
+                }
+              />
             </View>
 
             <View style={styles.contentContainer}>
