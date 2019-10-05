@@ -3,10 +3,10 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { useScreens } from "react-native-screens";
 
-import DisplayMap from "./src/components/DisplayMap";
-import SearchCarparks from "./src/components/SearchCarpark";
-import Settings from "./src/components/Settings";
-import test from "./src/components/test";
+import DisplayMap from "./src/screens/DisplayMap";
+import SearchCarparks from "./src/screens/SearchCarpark";
+import Settings from "./src/screens/Settings";
+import DenyLocation from "./src/screens/DenyLocation";
 
 useScreens();
 
@@ -15,7 +15,7 @@ const AppStackNavigator = createStackNavigator(
     home: { screen: DisplayMap },
     search: { screen: SearchCarparks },
     settings: { screen: Settings },
-    test: { screen: test }
+    denyLoc: { screen: DenyLocation }
   },
   { initialRouteName: "home" }
 );

@@ -7,7 +7,7 @@ import * as Permissions from "expo-permissions";
 import * as Location from "expo-location";
 import UserMarker from "../../assets/motorist-icon-32.png";
 
-import DestinationRouter from "./DestinationRouter";
+import DestinationRouter from "../components/DestinationRouter";
 
 import {
   getCarparkInfo,
@@ -94,7 +94,6 @@ export default class DisplayMap extends Component {
                 isSearchingCarpark: false,
                 showNearestCarparkBtn: false,
                 showNearestCarparkResults: true
-                // showDrawerButtons: true
               },
               () => this.setBookmarkColour()
             );
@@ -103,49 +102,6 @@ export default class DisplayMap extends Component {
       })
       .catch(err => console.log(err));
   }
-
-  /*bookmarkCarPark() {
-    let bookmarks = [...this.state.bookmarkList];
-
-    if (this.isBookmarked(bookmarks)) {
-      bookmarks.pop();
-      this.setState({
-        bookmarkList: bookmarks,
-        bookmarkColour: "#CFD8DC"
-      });
-    } else {
-      bookmarks.push(this.state.nearest15Lots[0]);
-      this.setState({
-        bookmarkList: bookmarks,
-        bookmarkColour: "#F57F17"
-      });
-    }
-  }
-
-  bookmarkCarParkFromSearch(carpark) {
-    let bookmarks = [...this.state.bookmarkList];
-
-    if (this.isBookmarked(bookmarks)) {
-      bookmarks.pop();
-      this.setState({
-        bookmarkList: bookmarks,
-        bookmarkColour: "#CFD8DC"
-      });
-    } else {
-      bookmarks.push(carpark);
-      this.setState({
-        bookmarkList: bookmarks,
-        bookmarkColour: "#F57F17"
-      });
-    }
-  }
-
-  isBookmarked(bookmark) {
-    return bookmark.some(
-      bookmark =>
-        this.state.nearest15Lots[0].car_park_no === bookmark.car_park_no
-    );
-  }*/
 
   bookmarkCarPark(carparkList) {
     let bookmarks = [...this.state.bookmarkList];
@@ -172,16 +128,9 @@ export default class DisplayMap extends Component {
   }
 
   isBookmarked(bookmark, carparkList) {
-    let result = bookmark.some(
+    return bookmark.some(
       bookmark => carparkList.car_park_no === bookmark.car_park_no
     );
-    /*console.log(result);
-
-    let result1 = bookmark.find(
-      bookmark => carparkList === bookmark.car_park_no
-    );*/
-
-    return result;
   }
 
   setBookmarkColour() {
@@ -274,7 +223,6 @@ export default class DisplayMap extends Component {
           />
         </View>
 
-        {/** wrap fromSearch with another variable? */}
         {this.state.showNearestCarparkResults ? (
           <BottomDrawer
             containerHeight={250}
@@ -372,7 +320,9 @@ export default class DisplayMap extends Component {
           </BottomDrawer>
         ) : null}
 
-        {this.state.showNearestCarparkBtn && !fromSearch ? (
+        {(this.state.showNearestCarparkBtn && !fromSearch) ||
+        (this.state.showNearestCarparkBtn &&
+          !this.state.showResultsFromSearch) ? (
           <View style={styles.buttonContainer}>
             <Button
               style={styles.nearestCpButton}
