@@ -8,9 +8,15 @@ Tools used:
 4. MongoDB Stitch
 5. MongoDB Atlas
 6. DotEnv
-7. react-native-maps
-8. react-native-axios
-9. react-native-paper
+
+Main libraries used:
+
+1. axios
+2. react-native-maps
+3. react-native-map-directions
+4. react-native-paper
+5. react-navigation
+6. rn-bottom-drawer
 
 ## Installation:
 
