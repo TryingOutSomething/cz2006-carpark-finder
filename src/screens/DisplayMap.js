@@ -61,14 +61,15 @@ export default class DisplayMap extends Component {
     let { status } = await Permissions.getAsync(Permissions.LOCATION);
     if (status !== "granted") {
       console.log("Permission is not granted!");
-    } else {
-      let location = await Location.getCurrentPositionAsync({});
-      console.log(location);
-      this.setState({
-        userLat: location.coords.latitude,
-        userLong: location.coords.longitude
-      });
+      this.props.navigation.navigate("denyLocation");
     }
+
+    let location = await Location.getCurrentPositionAsync({});
+    console.log(location);
+    this.setState({
+      userLat: location.coords.latitude,
+      userLong: location.coords.longitude
+    });
   }
 
   getNearbyCarparkLocations() {

@@ -15,9 +15,9 @@ const AppStackNavigator = createStackNavigator(
     home: { screen: DisplayMap },
     search: { screen: SearchCarparks },
     settings: { screen: Settings },
-    denyLoc: { screen: DenyLocation }
+    denyLocation: { screen: DenyLocation }
   },
-  { initialRouteName: "home" }
+  { initialRouteName: "denyLocation" }
 );
 
 const AppContainer = createAppContainer(AppStackNavigator);

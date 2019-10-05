@@ -1,21 +1,49 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, Button } from "react-native";
-import { IconButton } from "react-native-paper";
+import { Image, StyleSheet, View, Text } from "react-native";
+import { Button } from "react-native-paper";
+
+import * as IntentLauncher from "expo-intent-launcher";
 
 export default class test extends Component {
+  static navigationOptions = {
+    header: null
+  };
+
   constructor() {
     super();
+
+    this.openSettings = this.openSettings.bind(this);
+  }
+
+  openSettings() {
+    IntentLauncher.startActivityAsync(
+      IntentLauncher.ACTION_LOCATION_SOURCE_SETTINGS
+    );
   }
 
   render() {
-    let fromSearch = this.props.navigation.getParam("selectedCarpark", null);
-    return <View>{fromSearch ? <Text>hello</Text> : <Text>bye</Text>}</View>;
+    return (
+      <View style={styles.container}>
+        <Image source={require("../../assets/location-disabled-128.png")} />
+        <Text>
+          {"\n"}Location is required to use this app! {"\n"}
+        </Text>
+        <Text>Please enable your location from Settings.</Text>
+        <Button
+          mode="text"
+          children="Settings"
+          color="#009688"
+          onPress={() => this.openSettings()}
+        />
+      </View>
+    );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center"
+    alignItems: "center",
+    justifyContent: "center"
   }
 });
