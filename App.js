@@ -17,7 +17,7 @@ const AppStackNavigator = createStackNavigator(
     settings: { screen: Settings },
     denyLocation: { screen: DenyLocation }
   },
-  { initialRouteName: "denyLocation" }
+  { initialRouteName: "home" }
 );
 
 const AppContainer = createAppContainer(AppStackNavigator);

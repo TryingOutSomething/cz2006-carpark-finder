@@ -17,54 +17,56 @@ export default class Settings extends Component {
   constructor() {
     super();
     this.state = {
-      language: "English"
+      language: "English",
+      items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     };
   }
   render() {
     return (
       <View style={styles.container}>
         <Text>Bookmarks:</Text>
-        <ScrollView>
-          <FlatList
-            data={this.props.navigation.getParam("bookmarkList", null)}
-            renderItem={({ item }) => (
-              <View>
-                <TouchableOpacity
-                  style={styles.ListItem}
-                  onPress={() => {
-                    console.log(item);
-                  }}
-                >
-                  <Text>{item.address}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            keyExtractor={item => item._id.toString()}
-            ListEmptyComponent={
-              <Text style={styles.FetchingData}>No Results!</Text>
+        <FlatList
+          style={styles.bookmarkListScroll}
+          data={this.state.items}
+          renderItem={({ item }) => (
+            <View>
+              <TouchableOpacity
+                style={styles.listItem}
+                onPress={() => {
+                  console.log(item);
+                }}
+              >
+                <Text>{item}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          keyExtractor={item => item.toString()}
+          ListEmptyComponent={
+            <Text style={styles.noBookmarks}>No Bookmarks</Text>
+          }
+        />
+        <Text>{"\n\n\n\n"}</Text>
+        <Text>Other Settings:</Text>
+        <View style={styles.languageOption}>
+          <Text style={styles.languageText}>Language</Text>
+          <Picker
+            style={styles.picker}
+            selectedValue={this.state.language}
+            onValueChange={(itemValue, itemIndex) =>
+              this.setState({ language: itemValue })
             }
-          />
-
-          <Text>Other Settings:</Text>
-          <View>
-            <Text>Language</Text>
-            <Picker
-              selectedValue={this.state.language}
-              onValueChange={(itemValue, itemIndex) =>
-                this.setState({ language: itemValue })
-              }
-            >
-              <Picker.Item label="English" value="english" />
-              <Picker.Item label="Mandarin" value="mandarin" />
-              <Picker.Item label="Malay" value="malay" />
-              <Picker.Item label="Tamil" value="tamil" />
-            </Picker>
-          </View>
-          <View>
-            <Text>Contact us @ testytest.com</Text>
-            <Text>Software Engineering group SSP3 testytest</Text>
-          </View>
-        </ScrollView>
+          >
+            <Picker.Item label="English" value="english" />
+            <Picker.Item label="Mandarin" value="mandarin" />
+            <Picker.Item label="Malay" value="malay" />
+            <Picker.Item label="Tamil" value="tamil" />
+          </Picker>
+        </View>
+        <Text>{"\n"}</Text>
+        <View style={styles.credits}>
+          <Text>Software Engineering group SSP3 testytest</Text>
+          <Text>Icons from Those Icons @ FlatIcon</Text>
+        </View>
       </View>
     );
   }
@@ -72,11 +74,41 @@ export default class Settings extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    padding: 10,
+    marginHorizontal: 10
   },
 
-  FetchingData: {
-    marginTop: "10%",
-    marginLeft: "3%"
-  }
+  bookmarkListScroll: {
+    borderWidth: 1,
+    height: "30%"
+  },
+
+  noBookmarks: {
+    textAlign: "center"
+  },
+
+  listItem: {
+    padding: 5,
+    marginHorizontal: 16
+  },
+
+  languageOption: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    padding: 5
+  },
+
+  languageText: {
+    textAlign: "center",
+    alignSelf: "center",
+    fontSize: 16
+  },
+
+  picker: {
+    width: "30%"
+  },
+
+  credits: {}
 });

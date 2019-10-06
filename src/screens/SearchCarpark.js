@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import {
   FlatList,
   StyleSheet,
-  ScrollView,
   Text,
   TouchableOpacity,
   View
@@ -93,27 +92,25 @@ export default class FindCarparks extends Component {
           <View style={styles.List}>
             {this.state.isFetching ? (
               this.state.carParkInfo ? (
-                <ScrollView>
-                  <FlatList
-                    data={this.state.carParkInfo}
-                    renderItem={({ item }) => (
-                      <View>
-                        <TouchableOpacity
-                          style={styles.ListItem}
-                          onPress={() => {
-                            this.routeToMap(item);
-                          }}
-                        >
-                          <Text>{item.address}</Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                    keyExtractor={item => item._id.toString()}
-                    ListEmptyComponent={
-                      <Text style={styles.FetchingData}>No Results!</Text>
-                    }
-                  />
-                </ScrollView>
+                <FlatList
+                  data={this.state.carParkInfo}
+                  renderItem={({ item }) => (
+                    <View>
+                      <TouchableOpacity
+                        style={styles.ListItem}
+                        onPress={() => {
+                          this.routeToMap(item);
+                        }}
+                      >
+                        <Text>{item.address}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  keyExtractor={item => item._id.toString()}
+                  ListEmptyComponent={
+                    <Text style={styles.FetchingData}>No Results!</Text>
+                  }
+                />
               ) : (
                 <Text style={styles.FetchingData}>Fetching Data</Text>
               )

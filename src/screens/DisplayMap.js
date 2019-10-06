@@ -15,6 +15,9 @@ import {
   mergeCarparkData
 } from "../controllers/CarParkDataHandler";
 
+const width = Dimensions.get("screen").width;
+const height = Dimensions.get("screen").height;
+
 export default class DisplayMap extends Component {
   static navigationOptions = {
     header: null
@@ -22,6 +25,9 @@ export default class DisplayMap extends Component {
 
   constructor() {
     super();
+
+    watchId = undefined;
+
     this.state = {
       userLat: 1.348406,
       userLong: 103.68306,
@@ -50,27 +56,51 @@ export default class DisplayMap extends Component {
 
   componentWillMount() {
     this.getCurrPos();
-
-    const width = Dimensions.get("screen").width;
-    const height = Dimensions.get("screen").height;
-    const screenLongDelta = this.state.latDelta * (width / height);
-    this.setState({ longDelta: screenLongDelta });
   }
+
+  /*componentDidMount() {
+    this.watchCurrPos();
+  }
+
+  componentWillUnmount() {
+    this.watchId.remove();
+  }*/
 
   async getCurrPos() {
     let { status } = await Permissions.getAsync(Permissions.LOCATION);
     if (status !== "granted") {
       console.log("Permission is not granted!");
       this.props.navigation.navigate("denyLocation");
+      return;
     }
 
     let location = await Location.getCurrentPositionAsync({});
     console.log(location);
+
+    const screenLongDelta = this.state.latDelta * (width / height);
     this.setState({
       userLat: location.coords.latitude,
-      userLong: location.coords.longitude
+      userLong: location.coords.longitude,
+      longDelta: screenLongDelta
     });
   }
+
+  /*async watchCurrPos() {
+    this.watchId = await Location.watchPositionAsync(
+      {
+        accuracy: Location.Accuracy.Balanced,
+        timeInterval: 5000,
+        distanceInterval: 500
+      },
+      location => {
+        this.setState({
+          userLat: location.coords.latitude,
+          userLong: location.coords.longitude
+        });
+      }
+    )
+    .catch(err => console.log(err));
+  }*/
 
   getNearbyCarparkLocations() {
     this.setState({ isSearchingCarpark: true });
@@ -150,20 +180,22 @@ export default class DisplayMap extends Component {
         nearest15Lots: carparkLots
       },
       // Check if the current carpark is bookmarked or not
-      () => this.setBookmarkColour()
+      () => {
+        console.log(this.state.nearest15Lots);
+        this.setBookmarkColour();
+      }
     );
-    console.log(this.state.bookmarkList);
+    //console.log(this.state.bookmarkList);
   }
 
   render() {
-    // todo add parameters for bookmark
     let fromSearch = this.props.navigation.getParam("searchCarpark", null);
 
     return (
       <View style={styles.container}>
         <MapView
           style={styles.map}
-          initialRegion={{
+          region={{
             latitude: this.state.userLat,
             longitude: this.state.userLong,
             latitudeDelta: this.state.latDelta,
