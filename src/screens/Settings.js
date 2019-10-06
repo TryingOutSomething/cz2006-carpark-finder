@@ -17,8 +17,7 @@ export default class Settings extends Component {
   constructor() {
     super();
     this.state = {
-      language: "English",
-      items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      language: "English"
     };
   }
   render() {
@@ -27,7 +26,7 @@ export default class Settings extends Component {
         <Text>Bookmarks:</Text>
         <FlatList
           style={styles.bookmarkListScroll}
-          data={this.state.items}
+          data={this.props.navigation.getParam("bookmarkList", null)}
           renderItem={({ item }) => (
             <View>
               <TouchableOpacity
@@ -36,11 +35,11 @@ export default class Settings extends Component {
                   console.log(item);
                 }}
               >
-                <Text>{item}</Text>
+                <Text>{item.address}</Text>
               </TouchableOpacity>
             </View>
           )}
-          keyExtractor={item => item.toString()}
+          keyExtractor={item => item._id.toString()}
           ListEmptyComponent={
             <Text style={styles.noBookmarks}>No Bookmarks</Text>
           }
@@ -57,9 +56,6 @@ export default class Settings extends Component {
             }
           >
             <Picker.Item label="English" value="english" />
-            <Picker.Item label="Mandarin" value="mandarin" />
-            <Picker.Item label="Malay" value="malay" />
-            <Picker.Item label="Tamil" value="tamil" />
           </Picker>
         </View>
         <Text>{"\n"}</Text>
@@ -79,7 +75,6 @@ const styles = StyleSheet.create({
   },
 
   bookmarkListScroll: {
-    borderWidth: 1,
     height: "30%"
   },
 
@@ -96,7 +91,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
-    borderWidth: 1,
     padding: 5
   },
 

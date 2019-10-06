@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { Dimensions, StyleSheet, Text, View, Image } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
 import { Button, IconButton } from "react-native-paper";
 import BottomDrawer from "rn-bottom-drawer";
 import * as Permissions from "expo-permissions";
 import * as Location from "expo-location";
 import UserMarker from "../../assets/motorist-icon-32.png";
 
-import DestinationRouter from "../components/DestinationRouter";
+import { GOOGLE_MAPS_APIKEY } from "react-native-dotenv";
 
 import {
   getCarparkInfo,
@@ -58,13 +59,13 @@ export default class DisplayMap extends Component {
     this.getCurrPos();
   }
 
-  /*componentDidMount() {
+  componentDidMount() {
     this.watchCurrPos();
   }
 
   componentWillUnmount() {
     this.watchId.remove();
-  }*/
+  }
 
   async getCurrPos() {
     let { status } = await Permissions.getAsync(Permissions.LOCATION);
@@ -85,8 +86,8 @@ export default class DisplayMap extends Component {
     });
   }
 
-  /*async watchCurrPos() {
-    this.watchId = await Location.watchPositionAsync(
+  watchCurrPos() {
+    this.watchId = Location.watchPositionAsync(
       {
         accuracy: Location.Accuracy.Balanced,
         timeInterval: 5000,
@@ -100,7 +101,7 @@ export default class DisplayMap extends Component {
       }
     )
     .catch(err => console.log(err));
-  }*/
+  }
 
   getNearbyCarparkLocations() {
     this.setState({ isSearchingCarpark: true });
@@ -215,29 +216,55 @@ export default class DisplayMap extends Component {
           </Marker>
 
           {fromSearch && this.state.showResultsFromSearch ? (
-            <DestinationRouter
-              userCoord={{
-                latitude: this.state.userLat,
-                longitude: this.state.userLong
-              }}
-              destCoord={{
-                latitude: fromSearch.loc.coordinates[1],
-                longitude: fromSearch.loc.coordinates[0]
-              }}
-              address={fromSearch.address}
-            />
+            <View>
+              <Marker
+                coordinate={{
+                  latitude: fromSearch.loc.coordinates[1],
+                  longitude: fromSearch.loc.coordinates[0]
+                }}
+                title={"Destination"}
+                description={`${this.state.nearest15Lots[0].address}`}
+                pinColor={"red"}
+              />
+              <MapViewDirections
+                origin={{
+                  latitude: this.state.userLat,
+                  longitude: this.state.userLong
+                }}
+                destination={{
+                  latitude: fromSearch.loc.coordinates[1],
+                  longitude: fromSearch.loc.coordinates[0]
+                }}
+                apikey={GOOGLE_MAPS_APIKEY}
+                strokeWidth={5}
+                strokeColor="red"
+              />
+            </View>
           ) : this.state.showNearestCarparkResults ? (
-            <DestinationRouter
-              userCoord={{
-                latitude: this.state.userLat,
-                longitude: this.state.userLong
-              }}
-              destCoord={{
-                latitude: this.state.nearest15Lots[0].loc.coordinates[1],
-                longitude: this.state.nearest15Lots[0].loc.coordinates[0]
-              }}
-              address={this.state.nearest15Lots[0].address}
-            />
+            <View>
+              <Marker
+                coordinate={{
+                  latitude: this.state.nearest15Lots[0].loc.coordinates[1],
+                  longitude: this.state.nearest15Lots[0].loc.coordinates[0]
+                }}
+                title={"Destination"}
+                description={`${this.state.nearest15Lots[0].address}`}
+                pinColor={"red"}
+              />
+              <MapViewDirections
+                origin={{
+                  latitude: this.state.userLat,
+                  longitude: this.state.userLong
+                }}
+                destination={{
+                  latitude: this.state.nearest15Lots[0].loc.coordinates[1],
+                  longitude: this.state.nearest15Lots[0].loc.coordinates[0]
+                }}
+                apikey={GOOGLE_MAPS_APIKEY}
+                strokeWidth={5}
+                strokeColor="red"
+              />
+            </View>
           ) : null}
         </MapView>
 
