@@ -1,5 +1,10 @@
 # Car Park Finder app
 
+A mobile application that finds the nearest Housing Development Board (HDB) car park from your current location in Singapore. The application displays the number of lots in the car park as well.
+
+### Hi-Fi mockup of the application
+![Hi-Fi prototype](./assets/hi-fi-mockup.jpg)
+
 Tools used:
 
 1. Expo
