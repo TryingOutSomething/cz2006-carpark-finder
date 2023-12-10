@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "axios": "^1.6.0",
-    "expo": "^34.0.1",
+    "expo": "^49.0.21",
     "expo-intent-launcher": "^6.0.0",
     "expo-location": "^6.0.0",
     "expo-permissions": "^6.0.0",
@@ -39,7 +39,7 @@
     "rn-bottom-drawer": "^1.4.3"
   },
   "devDependencies": {
-    "babel-preset-expo": "^6.0.0",
+    "babel-preset-expo": "^9.5.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.15.1",
     "enzyme-to-json": "^3.4.3",
